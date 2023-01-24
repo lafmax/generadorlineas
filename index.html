@@ -54,11 +54,6 @@
         </div>
         <div class="col-12">
             <div class="row">
-                <div class="col-auto">
-                    <button v-on:click="createEmployed" type="button" class="btn btn-sm btn-primary"><i
-                            class="bi bi-person-plus"></i>
-                        &nbsp;Agregar empleado</button>
-                </div>
                 <div class="col-auto pb-4">
                     <button v-on:click="createLine" type="button" class="btn btn-sm btn-success"><i
                             class="bi bi-table"></i>
@@ -178,10 +173,12 @@
 </style>
 
 <script>
+    //https://code-boxx.com/create-excel-file-javascript/
     const { createApp } = Vue
     createApp({
         data() {
             return {
+                dataCSV: [],
                 personal: [],
                 ventana: [],
                 dia: [],
@@ -315,8 +312,10 @@
             },
             cargaCSV() {
                 Papa.parse(this.csv, {
-                    complete: function (results) {
-                        console.log("Finished:", results.data[5]);
+                    complete: function (res) {
+                        //console.log("Finished:", res.data);
+                    this.dataCSV = res.data.slice(5, 28);
+                    console.log(this.dataCSV); 
                     }
                 });
             },

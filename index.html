@@ -173,6 +173,7 @@
 </style>
 
 <script>
+    //https://www.tutorialrepublic.com/faq/how-to-add-a-key-value-pair-to-an-object-in-javascript.php
     //https://code-boxx.com/create-excel-file-javascript/
     //https://github.com/ShanaMaid/sheetjs-style
     //https://github.com/gitbrent/xlsx-js-style
@@ -181,6 +182,7 @@
         data() {
             return {
                 dataCSV: [],
+                employes: [],
                 personal: [],
                 ventana: [],
                 dia: [],
@@ -313,13 +315,16 @@
                 this.csv = this.$refs.file.files[0];
             },
             cargaCSV() {
+                let dat = [];
                 Papa.parse(this.csv, {
                     complete: function (res) {
-                        //console.log("Finished:", res.data);
-                        this.dataCSV = res.data.slice(5, 28);
-                        console.log(this.dataCSV);
+                        dat.push(res.data.slice(5, 28))
                     }
                 });
+                this.dataCSV = dat;
+                setTimeout(() => {
+                    this.dataCSV = this.dataCSV[0];
+                }, 100);
             },
             funExamp() {
 
@@ -328,24 +333,29 @@
                     { name: "John Adams", birthday: "1735-10-19" },
                 ];
 
-                let dat = XLSX.utils.json_to_sheet(obj);
+                obj[0].name = 'jaime alvarez';
 
-                var ws_data = [
-                    ["Column 1"],
-                    ['hola']
-                ];
-                var ws = XLSX.utils.aoa_to_sheet(ws_data);
+                let dat1 = XLSX.utils.json_to_sheet(obj);
 
+                let ws_data = [];
 
-                var ws_data2 = [
-                    ["Column 2"],
-                    [2]
-                ];
-                var ws2 = XLSX.utils.aoa_to_sheet(ws_data2);
+                this.employes = this.dataCSV.flatMap(x => {
+                    return x[0]
+                });
+
+                this.ventanaHora.forEach(ventana => {
+                    ws_data.push(this.employes);
+                });
+
+                ws_data.unshift(['Ventana', 'empleado']);
+
+                var dat2 = XLSX.utils.aoa_to_sheet(ws_data);
+
+                dat2["!cols"] = [{ wch: 15 }, { wch: 15 }];
 
                 const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, dat, "SheetJS1");
-                XLSX.utils.book_append_sheet(wb, ws2, "SheetJS2");
+                XLSX.utils.book_append_sheet(wb, dat2, "SheetJS1");
+                XLSX.utils.book_append_sheet(wb, dat1, "SheetJS2");
 
                 XLSX.writeFile(wb, "sheetjs.xlsx");
             },

@@ -313,8 +313,8 @@
             }, */
             doStuff(data) {
                 //Data is usable here
-                this.dataCSV = data;
-                this.dataCSV.map(x => console.log(x));
+                this.dataCSV = Array.from(data);
+                //this.dataCSV.map(x => console.log(x));
             },
 
             parseData(url, callBack) {
@@ -350,12 +350,14 @@
                     return x[0]
                 });
 
+                this.employes.unshift('TIEMPO');
+
                 let sw = true;
                 this.ventanaHora.forEach(ventana => {
                     ws_data.push([ventana]);
                 });
 
-                ws_data.unshift([this.employes]);
+                ws_data.unshift(Array.from(this.employes));
 
                 console.log(ws_data);
 
@@ -367,7 +369,7 @@
                 XLSX.utils.book_append_sheet(wb, dat2, "SheetJS1");
                 XLSX.utils.book_append_sheet(wb, dat1, "SheetJS2");
 
-                //XLSX.writeFile(wb, "sheetjs.xlsx");
+                XLSX.writeFile(wb, "sheetjs.xlsx");
             },
             deleteEmployed(id) {
                 let index = this.personal.findIndex(i => i.id === id);

@@ -311,20 +311,27 @@
                 console.log(this.semana[0][0]);
                 this.$forceUpdate();
             }, */
+            doStuff(data) {
+                //Data is usable here
+                this.dataCSV = data;
+                this.dataCSV.map(x => console.log(x));
+            },
+
+            parseData(url, callBack) {
+                Papa.parse(url, {
+                    download: true,
+                    dynamicTyping: true,
+                    complete: function (results) {
+                        callBack(results.data.slice(5, 28));
+                    }
+                });
+            },
+
             uploadCSV() {
                 this.csv = this.$refs.file.files[0];
             },
             cargaCSV() {
-                let dat = [];
-                Papa.parse(this.csv, {
-                    complete: function (res) {
-                        dat.push(res.data.slice(5, 28))
-                    }
-                });
-                this.dataCSV = dat;
-                setTimeout(() => {
-                    this.dataCSV = this.dataCSV[0];
-                }, 100);
+                this.parseData(this.csv, this.doStuff);
             },
             funExamp() {
 
@@ -343,11 +350,14 @@
                     return x[0]
                 });
 
+                let sw = true;
                 this.ventanaHora.forEach(ventana => {
-                    ws_data.push(this.employes);
+                    ws_data.push([ventana]);
                 });
 
-                ws_data.unshift(['Ventana', 'empleado']);
+                ws_data.unshift([this.employes]);
+
+                console.log(ws_data);
 
                 var dat2 = XLSX.utils.aoa_to_sheet(ws_data);
 
@@ -357,7 +367,7 @@
                 XLSX.utils.book_append_sheet(wb, dat2, "SheetJS1");
                 XLSX.utils.book_append_sheet(wb, dat1, "SheetJS2");
 
-                XLSX.writeFile(wb, "sheetjs.xlsx");
+                //XLSX.writeFile(wb, "sheetjs.xlsx");
             },
             deleteEmployed(id) {
                 let index = this.personal.findIndex(i => i.id === id);

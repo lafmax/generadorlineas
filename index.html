@@ -230,7 +230,7 @@
                     T23: 7,
                     T24: 5
                 },
-                personalVentana: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+                personalVentana: [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 1],
 
                 ventanaHora: [
                     ' 9:00:00	 9:30:00',
@@ -350,16 +350,19 @@
                     return x[0]
                 });
 
-                this.employes.unshift('TIEMPO');
+                this.employes.unshift('VENTANA');
 
                 let sw = true;
-                this.ventanaHora.forEach(ventana => {
-                    ws_data.push([ventana]);
+                this.ventanaHora.forEach((ventana,index) => {
+                    let linea = [];
+                    this.dataCSV.forEach((x)=> {
+                        linea.push(this.statusEmployed(x[3],index));
+                    });
+                    console.log(linea);
+                    ws_data.push([ventana,...linea]);
                 });
 
                 ws_data.unshift(Array.from(this.employes));
-
-                console.log(ws_data);
 
                 var dat2 = XLSX.utils.aoa_to_sheet(ws_data);
 
@@ -369,7 +372,7 @@
                 XLSX.utils.book_append_sheet(wb, dat2, "SheetJS1");
                 XLSX.utils.book_append_sheet(wb, dat1, "SheetJS2");
 
-                XLSX.writeFile(wb, "sheetjs.xlsx");
+                //XLSX.writeFile(wb, "sheetjs.xlsx");
             },
             deleteEmployed(id) {
                 let index = this.personal.findIndex(i => i.id === id);
@@ -393,86 +396,56 @@
                 //console.log(this.semana[1][0])
                 //console.log(this.semana);
             },
-            statusEmployed(id, dia, ventana) {
-
-                let status = '';
-
-                let emp = this.personal.filter(i => i.id === id)[0];
-
-                if (emp.devolucion && this.getDayString(emp.devolucion) == dia) {
-                    return 'LIBRE';
+            statusEmployed(turno, ventana) {
+                if(turno === 'VAC'){
+                    return 'Vacaciones'
                 }
-
-                if (emp.tardeLibre && this.getDayString(emp.tardeLibre) == dia && ventana >= 8) {
-                    return 'LIBRE';
+                if(turno === 'T'){
+                    return 'T LIBRE';
                 }
-
-                if (emp.domingo && day == 'DOMINGO') {
-                    return 'LIBRE';
+                if(turno === 'DEV'){
+                    return 'Devolución';
                 }
-                status = this.getStatusVentana(emp.turno, ventana);
+                if(turno === 'L'){
+                    return 'Libre';
+                }
+                status = this.getStatusVentana(turno, ventana);
                 return status;
             },
             getStatusVentana(turno, ventana) {
                 switch (turno) {
                     case 'D':
                         if (this.objTurnosVentana.d.includes(ventana)) {
-                            return 'TURNO';
+                            return 'Disponible';
                         } else {
-                            return 'LIBRE';
+                            return '';
                         }
                         break;
                     case 'B1':
                         if (this.objTurnosVentana.b1.includes(ventana)) {
-                            return 'TURNO';
+                            return 'Disponible';
                         } else {
-                            return 'LIBRE';
+                            return '';
                         }
                         break;
                     case 'C1':
                         if (this.objTurnosVentana.c1.includes(ventana)) {
-                            return 'TURNO';
+                            return 'Disponible';
                         } else {
-                            return 'LIBRE';
+                            return '';
                         }
                         break;
                     case 'W':
                         if (this.objTurnosVentana.w.includes(ventana)) {
-                            return 'TURNO';
+                            return 'Disponible';
                         } else {
-                            return 'LIBRE';
+                            return '';
                         }
                         break;
                     default:
                         return 'error';
                 }
-            },
-            getDayString(d) {
-                if (d == 0) {
-                    return 0;
-                }
-                if (d == 1) {
-                    return this.dias[0];
-                }
-                if (d == 2) {
-                    return this.dias[1];
-                }
-                if (d == 3) {
-                    return this.dias[2];
-                }
-                if (d == 4) {
-                    return this.dias[3];
-                }
-                if (d == 5) {
-                    return this.dias[4];
-                }
-                if (d == 6) {
-                    return this.dias[5];
-                }
             }
-
-
-
             //statusTurno(turno,)
         }
     }).mount('#app')

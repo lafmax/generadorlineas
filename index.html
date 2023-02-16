@@ -181,6 +181,7 @@
     createApp({
         data() {
             return {
+                empStatusLine: [],
                 dataCSV: [],
                 employes: [],
                 personal: [],
@@ -350,17 +351,28 @@
                     return x[0]
                 });
 
+                this.empStatusLine = this.employes.flatMap(x => {
+                    return {
+                        name: x,
+                        desc1: false,
+                        desc2: false,
+                        comida: false
+                    }
+                });
+
                 this.employes.unshift('VENTANA');
 
                 let sw = true;
-                this.ventanaHora.forEach((ventana,index) => {
+                this.ventanaHora.forEach((ventana, index) => {
                     let linea = [];
-                    this.dataCSV.forEach((x)=> {
-                        linea.push(this.statusEmployed(x[3],index));
+                    this.dataCSV.forEach((x) => {
+                        linea.push(this.statusEmployed(x[3], index));
                     });
-                    console.log(linea);
-                    ws_data.push([ventana,...linea]);
+                    linea = this.salidasEmployees(linea, index);
+                    ws_data.push([ventana, ...linea]);
                 });
+
+                //console.log(empStatusLine[0]);
 
                 ws_data.unshift(Array.from(this.employes));
 
@@ -373,6 +385,13 @@
                 XLSX.utils.book_append_sheet(wb, dat1, "SheetJS2");
 
                 //XLSX.writeFile(wb, "sheetjs.xlsx");
+            },
+
+            salidasEmployees(linea, ventana) {
+                minEmpLine = this.personalVentana[ventana];
+                countDisp = linea.filter(x => x === 'Disponible').length;
+                console.log(countDisp);
+                return linea;
             },
             deleteEmployed(id) {
                 let index = this.personal.findIndex(i => i.id === id);
@@ -397,16 +416,16 @@
                 //console.log(this.semana);
             },
             statusEmployed(turno, ventana) {
-                if(turno === 'VAC'){
+                if (turno === 'VAC') {
                     return 'Vacaciones'
                 }
-                if(turno === 'T'){
+                if (turno === 'T') {
                     return 'T LIBRE';
                 }
-                if(turno === 'DEV'){
+                if (turno === 'DEV') {
                     return 'Devolución';
                 }
-                if(turno === 'L'){
+                if (turno === 'L') {
                     return 'Libre';
                 }
                 status = this.getStatusVentana(turno, ventana);

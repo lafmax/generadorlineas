@@ -368,7 +368,9 @@
                     this.dataCSV.forEach((x) => {
                         linea.push(this.statusEmployed(x[3], index));
                     });
-                    linea = this.salidasEmployees(linea, index);
+                    if (index >= 3 && index <= 18) {
+                        linea = this.salidasEmployees(linea, index);
+                    }
                     ws_data.push([ventana, ...linea]);
                 });
 

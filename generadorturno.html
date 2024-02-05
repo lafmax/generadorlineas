@@ -1,0 +1,475 @@
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+    crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.css">
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+<!-- use version 0.19.1 -->
+<script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.19.1/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"
+    integrity="sha512-SGWgwwRA8xZgEoKiex3UubkSkV1zSE1BS6O4pXcaxcNtUlQsOmOmhVnDwIvqGRfEmuz83tIGL13cXMZn6upPyg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>dayjs().format()</script>
+
+<div id="app" class="container-fluid p-2 bg-light">
+    <div class="row bg-dark py-1">
+        <div class="col-auto pt-2">
+            <i class="bi bi-calendar-week text-secondary" style="font-size: 160%;"></i>
+        </div>
+        <div class="col-auto">
+            <h1 class="display-6 text-secondary" style="font-size: 200%;">Generador de linea MDI</h1>
+        </div>
+    </div>
+    <div class="row py-3 p-1 border border-3">
+        <div class="col-5">
+            <div class="card">
+                <div class="card-body">
+                    <p class="card-text">Seleccione el archivo json con la data guardada.</p>
+                    <div class="mb-3">
+                        <input @change="uploadCSV" ref="file" class="form-control form-control-sm" id="formFileSm"
+                            type="file">
+                    </div>
+                    <a @click="cargaCSV" class="btn btn-sm btn-primary"><i
+                            class="bi bi-file-earmark-arrow-up m-1"></i>Carga
+                        data</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Special title treatment</h5>
+                    <p class="card-text">With supporting text below as a natural lead.</p>
+                    <a @click="funExamp" class="btn btn-sm btn-primary">Go somewhere</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row p-1 border border-3 pt-3">
+        <div>
+            <hr class="solid">
+        </div>
+        <div class="col-12">
+            <div class="row">
+                <div class="col-auto pb-4">
+                    <button v-on:click="createLine" type="button" class="btn btn-sm btn-success"><i
+                            class="bi bi-table"></i>
+                        &nbsp;Generar linea semanal</button>
+                </div>
+                <div class="col-3">
+                    <div class="input-group input-group-sm mb-3">
+                        <span class="input-group-text" id="inputGroup-sizing-sm">Desde</span>
+                        <input v-model="desde" type="date" class="form-control" aria-label="Sizing example input">
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="input-group input-group-sm mb-3">
+                        <span class="input-group-text" id="inputGroup-sizing-sm">Hasta</span>
+                        <input v-model="hasta" type="date" class="form-control" aria-label="Sizing example input">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row border border-3 justify-content-center">
+        <div class="col-10 pt-3">
+            <table class="table table-secondary table-striped table-hover table-sm border border-3">
+                <thead>
+                    <tr>
+                        <th class="fw-light" scope="col">Nombre</th>
+                        <th class="fw-light" scope="col">Turno</th>
+                        <th class="fw-light" scope="col">Domingo</th>
+                        <th class="fw-light" scope="col">T. libre</th>
+                        <th class="fw-light" scope="col">Devolución</th>
+                        <th class="fw-light" scope="col">Editar</th>
+                        <th class="fw-light" scope="col">Borrar</th>
+                    </tr>
+                </thead>
+                <tbody class="table-group-divider">
+                    <tr class="fw-light" v-for="empleado in personal">
+                        <td>{{empleado.nombre}}</td>
+                        <td>{{empleado.turno}}</td>
+                        <td><i v-if="!empleado.domingo" class="bi bi-x-circle-fill text-secondary"></i><i
+                                v-if="empleado.domingo" class="bi bi-check-circle-fill text-success"></i></td>
+                        <td><i v-if="!empleado.tardeLibre" class="bi bi-x-circle-fill text-secondary"></i><i
+                                v-if="empleado.tardeLibre" class="bi bi-check-circle-fill text-success"></i></td>
+                        <td><i v-if="!empleado.devolucion" class="bi bi-x-circle-fill text-secondary"></i><i
+                                v-if="empleado.devolucion" class="bi bi-check-circle-fill text-success"></i></td>
+                        <td><button class="btn btn-sm btn-secondary" @click="deleteEmployed(empleado.id)"><i
+                                    class="bi bi-pencil-fill"></i></button>
+                        </td>
+                        <td><button class="btn btn-sm btn-secondary" @click="deleteEmployed(empleado.id)"><i
+                                    class="bi bi-trash3-fill"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div v-if="sw" class="row justify-content-center">
+        <div class="col-10 pt-3">
+            <div class="table-responsive-sm">
+                <table v-for="dia in semana" ref="table" class="table table-light table-hover table-bordered table-sm">
+                    <thead>
+                        <tr>
+                            <th style="font-size: 64%;" scope="col" class="fw-normal">
+                                <i class="bi bi-clock-history"></i>&nbsp;Time
+                            </th>
+                            <th style="font-size: 64%;" v-for="emp in personal" scope="col" class="fw-normal">
+                                {{emp.nombre}}</i></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(x, index) in dia">
+                            <td style="font-size: 64%; color: rgb(83, 83, 83);" scope="col" class="fw-normal">
+                                {{ventanaHora[index]}}
+                            </td>
+                            <td v-for="emp in x">
+                                <select style="font-size: 64%;"
+                                    class="form-select form-select-sm text-white custom-select" v-model="emp.estado"
+                                    v-bind:class="isActiveClass(emp.estado)" @change="switchSelect($event, emp)">
+                                    <option value="COMIDA">Comida</option>
+                                    <option value="PAUSA">Pausa</i></option>
+                                    <option value="TURNO">Disponible</option>
+                                    <option value="LIBRE">Libre</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<style>
+    hr.solid {
+        border-top: 2px solid #999;
+    }
+
+    .custom-select {
+        background-image: none;
+    }
+
+    .bg-libre {
+        background-color: rgb(194, 194, 194);
+    }
+
+    .bg-pausa {
+        background-color: yellowgreen;
+    }
+
+    .bg-colacion {
+        background-color: blueviolet;
+    }
+
+    .bg-disponible {
+        background-color: cornflowerblue;
+    }
+</style>
+
+<script>
+    //https://www.tutorialrepublic.com/faq/how-to-add-a-key-value-pair-to-an-object-in-javascript.php
+    //https://code-boxx.com/create-excel-file-javascript/
+    //https://github.com/ShanaMaid/sheetjs-style
+    //https://github.com/gitbrent/xlsx-js-style
+    const { createApp } = Vue
+    createApp({
+        data() {
+            return {
+                empStatusLine: [],
+                dataCSV: [],
+                employes: [],
+                personal: [],
+                ventana: [],
+                dia: [],
+                semana: [],
+                lineaSemanal: [],
+                lineaPersonal: [],
+                nombre: '',
+                turno: 'D',
+                soporte: false,
+                smw: false,
+                especialista: false,
+                coordinador: false,
+                domingo: false,
+                tardeLibre: 0,
+                devolucion: 0,
+                sw: false,
+                desde: '',
+                hasta: '',
+                csv: '',
+                // dias: ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO', 'DOMINGO'],
+                dias: ['LUNES', 'MARTES'],
+                perVent: {
+                    T0: 3,
+                    T1: 4,
+                    T2: 5,
+                    T3: 10,
+                    T4: 8,
+                    T5: 10,
+                    T6: 10,
+                    T7: 10,
+                    T8: 10,
+                    T9: 9,
+                    T11: 7,
+                    T12: 5,
+                    T13: 3,
+                    T14: 4,
+                    T15: 5,
+                    T16: 10,
+                    T17: 8,
+                    T18: 10,
+                    T19: 10,
+                    T20: 10,
+                    T21: 10,
+                    T22: 9,
+                    T23: 7,
+                    T24: 5
+                },
+                personalVentana: [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 1],
+
+                ventanaHora: [
+                    ' 9:00:00	 9:30:00',
+                    ' 9:30:00	10:00:00',
+                    '10:00:00	10:30:00',
+                    '10:30:00	11:00:00',
+                    '11:00:00	11:30:00',
+                    '11:30:00	12:00:00',
+                    '12:00:00	12:30:00',
+                    '12:30:00	13:00:00',
+                    '13:00:00	13:30:00',
+                    '13:30:00	14:00:00',
+                    '14:00:00	14:30:00',
+                    '14:30:00	15:00:00',
+                    '15:00:00	15:30:00',
+                    '15:30:00	16:00:00',
+                    '16:00:00	16:30:00',
+                    '16:30:00	17:00:00',
+                    '17:00:00	17:30:00',
+                    '17:30:00	18:00:00',
+                    '18:00:00	18:30:00',
+                    '18:30:00	19:00:00',
+                    '19:00:00	19:30:00',
+                    '19:30:00	20:00:00',
+                    '20:00:00	20:30:00',
+                    '20:30:00	21:00:00',
+
+                ],
+                objTurnosVentana: {
+                    b1: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+                    c1: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+                    d: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+                    w: [8, 9, 10, 11, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+                }
+            }
+        },
+        methods: {
+            switchSelect(event, emp) {
+                console.log(event.target.value);
+                console.log(emp);
+            },
+            isActiveClass(value) {
+                return {
+                    'bg-pausa': value === 'PAUSA',
+                    'bg-colacion': value === 'COMIDA',
+                    'bg-disponible': value === 'TURNO',
+                    'bg-libre': value === 'LIBRE'
+                }
+            },
+            uniqueID() {
+                return Math.random().toString(36).substring(2, 18);
+            },
+            createEmployed() {
+                this.personal.push({
+                    id: this.uniqueID(),
+                    nombre: this.nombre,
+                    turno: this.turno,
+                    domingo: this.domingo,
+                    tardeLibre: this.tardeLibre,
+                    devolucion: this.devolucion
+                });
+                this.nombre = '';
+                this.turno = 'D';
+                this.domingo = false;
+                this.tardeLibre = 0;
+                this.devolucion = 0;
+            },
+            createLine() {
+
+                this.sw = true; //
+                this.cargaVentana();
+                //this.fun(this.personal[2].id);
+            },
+            /* del() {
+                //funciona en index
+                // window.alert('Hello');
+                //this.semana[0][0] = [];
+                console.log(this.semana[0][0]);
+                this.$forceUpdate();
+            }, */
+            doStuff(data) {
+                //Data is usable here
+                this.dataCSV = Array.from(data);
+                //this.dataCSV.map(x => console.log(x));
+            },
+
+            parseData(url, callBack) {
+                Papa.parse(url, {
+                    download: true,
+                    dynamicTyping: true,
+                    complete: function (results) {
+                        callBack(results.data.slice(5, 28));
+                    }
+                });
+            },
+
+            uploadCSV() {
+                this.csv = this.$refs.file.files[0];
+            },
+            cargaCSV() {
+                this.parseData(this.csv, this.doStuff);
+            },
+            funExamp() {
+
+                let obj = [
+                    { name: "George Washington", birthday: "1732-02-22" },
+                    { name: "John Adams", birthday: "1735-10-19" },
+                ];
+
+                obj[0].name = 'jaime alvarez';
+
+                let dat1 = XLSX.utils.json_to_sheet(obj);
+
+                let ws_data = [];
+
+                this.employes = this.dataCSV.flatMap(x => {
+                    return x[0]
+                });
+
+                this.empStatusLine = this.employes.flatMap(x => {
+                    return {
+                        name: x,
+                        desc1: false,
+                        desc2: false,
+                        comida: false
+                    }
+                });
+
+                this.employes.unshift('VENTANA');
+
+                let sw = true;
+                this.ventanaHora.forEach((ventana, index) => {
+                    let linea = [];
+                    this.dataCSV.forEach((x) => {
+                        linea.push(this.statusEmployed(x[3], index));
+                    });
+                    if (index >= 3 && index <= 18) {
+                        linea = this.salidasEmployees(linea, index);
+                    }
+                    ws_data.push([ventana, ...linea]);
+                });
+
+                //console.log(empStatusLine[0]);
+
+                ws_data.unshift(Array.from(this.employes));
+
+                var dat2 = XLSX.utils.aoa_to_sheet(ws_data);
+
+                dat2["!cols"] = [{ wch: 15 }, { wch: 15 }];
+
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, dat2, "SheetJS1");
+                XLSX.utils.book_append_sheet(wb, dat1, "SheetJS2");
+
+                //XLSX.writeFile(wb, "sheetjs.xlsx");
+            },
+
+            salidasEmployees(linea, ventana) {
+                minEmpLine = this.personalVentana[ventana];
+                countDisp = linea.filter(x => x === 'Disponible').length;
+                console.log(countDisp);
+                return linea;
+            },
+            deleteEmployed(id) {
+                let index = this.personal.findIndex(i => i.id === id);
+                this.personal.splice(index, 1);
+            },
+            cargaVentana() {
+                this.dias.forEach(dia => {
+                    for (let index = 0; index < 24; index++) {
+                        this.personal.forEach(emp => {
+                            this.ventana.push({ id: emp.id, ventana: index, estado: this.statusEmployed(emp.id, dia, index), dia: dia });
+                        });
+                        this.dia[index] = this.ventana;
+                        this.ventana = [];
+                    }
+                    let count = this.dia[0].filter(e => e.ventana === 0 && e.estado === 'TURNO').length;
+                    console.log(count);
+                    this.semana.push(this.dia);
+                    this.dia = [];
+                });
+
+                //console.log(this.semana[1][0])
+                //console.log(this.semana);
+            },
+            statusEmployed(turno, ventana) {
+                if (turno === 'VAC') {
+                    return 'Vacaciones'
+                }
+                if (turno === 'T') {
+                    return 'T LIBRE';
+                }
+                if (turno === 'DEV') {
+                    return 'Devolución';
+                }
+                if (turno === 'L') {
+                    return 'Libre';
+                }
+                status = this.getStatusVentana(turno, ventana);
+                return status;
+            },
+            getStatusVentana(turno, ventana) {
+                switch (turno) {
+                    case 'D':
+                        if (this.objTurnosVentana.d.includes(ventana)) {
+                            return 'Disponible';
+                        } else {
+                            return '';
+                        }
+                        break;
+                    case 'B1':
+                        if (this.objTurnosVentana.b1.includes(ventana)) {
+                            return 'Disponible';
+                        } else {
+                            return '';
+                        }
+                        break;
+                    case 'C1':
+                        if (this.objTurnosVentana.c1.includes(ventana)) {
+                            return 'Disponible';
+                        } else {
+                            return '';
+                        }
+                        break;
+                    case 'W':
+                        if (this.objTurnosVentana.w.includes(ventana)) {
+                            return 'Disponible';
+                        } else {
+                            return '';
+                        }
+                        break;
+                    default:
+                        return 'error';
+                }
+            }
+            //statusTurno(turno,)
+        }
+    }).mount('#app')
+    //let now = dayjs();
+    //console.log(now.format());
+</script>
